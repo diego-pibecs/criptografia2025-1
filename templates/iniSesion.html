@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: hsl(199, 94%, 94%); /* Color de fondo suave */
+        }
+        .container {
+            width: 450px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold; /* Estilo de fuente para etiquetas */
+        }
+        input[type="text"], input[type="file"] {
+            width: calc(100% - 12px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #000000;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #b5e1ff; /* Color de fondo al pasar el mouse */
+        }
+        .select-directory {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 10px;
+            cursor: pointer;
+            text-align: center;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        .selected-path {
+            margin-top: 10px;
+            font-style: italic; /* Estilo para mostrar la ruta seleccionada */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Iniciar sesión</h1>
+        <form action="/login" method="POST" enctype="multipart/form-data">
+            <label for="username">Ingresa tu nombre:</label>
+            <input type="text" id="username" name="username" placeholder="Username" required>
+
+            <label for="secret">Ingresa tu secreto:</label>
+            <input type="text" id="secret" name="secret" placeholder="Secreto" required>
+
+            <label for="key_directory" style="margin-left: 20px;">Directorio para almacenar claves</label>
+            <p>Selecciona y copia la ruta como texto</p>
+            <input type="file" id="key_directory" name="key_directory" webkitdirectory style="display:none;" required>
+            <button type="button" class="select-directory" onclick="document.getElementById('key_directory').click();">Seleccionar Ubicación</button>
+            <input type="text" id="selected-directory" name="selected-directory" placeholder="Ruta de almacenamiento" required>
+
+            <label for="private_key" style="margin-left: 20px;">Selecciona tu archivo de clave privada (.pem) :</label>
+            <input type="file" id="private_key" name="private_key" accept=".pem" required>
+
+            <button type="submit">Generar y Guardar Claves</button>
+        </form>
+        <div class="selected-path" id="selected-path"></div>
+    </div>
+
+    <script>
+        document.getElementById('key_directory').addEventListener('change', function() {
+            const fullPath = this.files[0].webkitRelativePath; // Obtiene la ruta completa relativa
+            const selectedFolder = fullPath.replace(/\/[^\/]*$/, ''); // Remueve el nombre del archivo para obtener solo la ruta de la carpeta
+            document.getElementById('selected-directory').value = selectedFolder; // Muestra la ruta en el campo de texto
+        });
+
+        document.getElementById('private_key').addEventListener('change', function() {
+            const fullPath = this.value;
+            const fileName = fullPath.split('\\').pop().split('/').pop(); // Extrae solo el nombre del archivo
+            document.getElementById('selected-path').textContent = 'Archivo seleccionado: ' + fileName;
+        });
+    </script>
+</body>
+</html>
