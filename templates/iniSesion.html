@@ -14,6 +14,7 @@
             align-items: center;
             height: 100vh;
             background-color: hsl(199, 94%, 94%); /* Color de fondo suave */
+            color: #3d3d3d;
         }
         .container {
             width: 450px;
@@ -22,6 +23,11 @@
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
+        .container form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
         h1 {
             text-align: center;
             color: #007bff;
@@ -29,13 +35,11 @@
         }
         label {
             display: block;
-            margin-bottom: 5px;
             font-weight: bold; /* Estilo de fuente para etiquetas */
         }
-        input[type="text"], input[type="file"] {
-            width: calc(100% - 12px);
+        input[type="text"], input[type="file"], input[type="password"] {
+            margin-bottom: 5px;
             padding: 10px;
-            margin-bottom: 15px;
             border: 1px solid #000000;
             border-radius: 6px;
             font-size: 14px;
@@ -68,6 +72,18 @@
             margin-top: 10px;
             font-style: italic; /* Estilo para mostrar la ruta seleccionada */
         }
+        .directory-container {
+            display: flex;
+            flex-direction: column;
+            background-color: rgba(128, 128, 128, 0.144);
+            padding: 20px;
+            border-radius: 10px;
+            gap: 10px;
+        }
+        #directory-container-title {
+            align-self: center;
+            margin: 10px 0px;
+        }
     </style>
 </head>
 <body>
@@ -77,35 +93,21 @@
             <label for="username">Ingresa tu nombre:</label>
             <input type="text" id="username" name="username" placeholder="Username" required>
 
-            <label for="secret">Ingresa tu secreto:</label>
-            <input type="text" id="secret" name="secret" placeholder="Secreto" required>
+            <label for="secret">Ingresa tu contraseña:</label>
+            <input type="password" id="secret" name="secret" placeholder="Contraseña" required>
 
-            <label for="key_directory" style="margin-left: 20px;">Directorio para almacenar claves</label>
-            <p>Selecciona y copia la ruta como texto</p>
-            <input type="file" id="key_directory" name="key_directory" webkitdirectory style="display:none;" required>
-            <button type="button" class="select-directory" onclick="document.getElementById('key_directory').click();">Seleccionar Ubicación</button>
-            <input type="text" id="selected-directory" name="selected-directory" placeholder="Ruta de almacenamiento" required>
+            <div class="directory-container">
+                <h3 id="directory-container-title">Directorio para almacenar claves</h3>
+                <label for="selected_directory">Selecciona y copia la ruta del directorio como texto</label>
+                <input type="text" id="key_directory" name="selected_directory" placeholder="Ruta de almacenamiento" required>
 
-            <label for="private_key" style="margin-left: 20px;">Selecciona tu archivo de clave privada (.pem) :</label>
-            <input type="file" id="private_key" name="private_key" accept=".pem" required>
+                <label for="private_key_filename">Nombre del archivo de clave privada:</label>
+                <input type="text" id="private_key_filename" name="private_key_filename" placeholder="Nombre del archivo" required>
+            </div>
 
-            <button type="submit">Generar y Guardar Claves</button>
+            <button type="submit">Generar y guardar claves</button>
         </form>
         <div class="selected-path" id="selected-path"></div>
     </div>
-
-    <script>
-        document.getElementById('key_directory').addEventListener('change', function() {
-            const fullPath = this.files[0].webkitRelativePath; // Obtiene la ruta completa relativa
-            const selectedFolder = fullPath.replace(/\/[^\/]*$/, ''); // Remueve el nombre del archivo para obtener solo la ruta de la carpeta
-            document.getElementById('selected-directory').value = selectedFolder; // Muestra la ruta en el campo de texto
-        });
-
-        document.getElementById('private_key').addEventListener('change', function() {
-            const fullPath = this.value;
-            const fileName = fullPath.split('\\').pop().split('/').pop(); // Extrae solo el nombre del archivo
-            document.getElementById('selected-path').textContent = 'Archivo seleccionado: ' + fileName;
-        });
-    </script>
 </body>
 </html>

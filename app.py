@@ -1,5 +1,3 @@
-### RECONSTRUIDO ###
-
 from flask import Flask, render_template, request, jsonify, redirect, session
 #from flask_session import Session
 from Crypto.PublicKey import RSA
@@ -99,7 +97,7 @@ def index():
 def chat():
     if 'symmetric_key' in session:
         print("Chat iniciado con claves en sesión.")
-        return render_template("index.html", messages=session.get('messages', []))
+        return render_template("chat.html", messages=session.get('messages', []))
     else:
         print("No hay sesión iniciada, redirigiendo al inicio.")
         return redirect("/")
@@ -109,11 +107,24 @@ def chat():
 def login():
     session.clear()
     secret = request.form["secret"]
-    key_directory = request.form["key_directory"]
-    private_key_path = os.path.join(key_directory, "private.pem")
+    key_directory = request.form["selected_directory"]  # Ruta ingresada manualmente por el usuario
+    private_key_filename = request.form["private_key_filename"]  # Nombre del archivo ingresado por el usuario
+
+    # Verificar y ajustar el nombre del archivo .pem
+    if not private_key_filename.endswith(".pem"):
+        # Si el archivo no tiene extensión .pem o tiene una extensión incorrecta, se corrige
+        private_key_filename = os.path.splitext(private_key_filename)[0] + ".pem"
+
+    # Generar las rutas completas del archivo .pem
+    private_key_path = os.path.join(key_directory, private_key_filename)
     public_key_path = os.path.join(key_directory, "public.pem")
-    if not os.path.exists(private_key_path) or not os.path.exists(public_key_path):
+
+    # Verificar si el archivo de clave privada existe en la ruta especificada
+    if not os.path.exists(private_key_path):
+        print(f"--- El archivo {private_key_filename} no existe en {key_directory}. Creando clave privada nueva.")
         create_keys(secret, private_key_path, public_key_path)
+    else:
+        print(f"--- El archivo {private_key_filename} ya existe en {key_directory}. Cargando clave privada existente.")
 
     with open(private_key_path, "rb") as f:
         private_key_data = f.read()
@@ -134,7 +145,6 @@ def login():
     session['messages'] = []
 
     print("Usuario logueado, sesión iniciada con claves cargadas.")
-    # Imprimir información en la terminal
     print("Clave privada RSA:")
     print(private_key.export_key().decode())
     print("\nClave pública RSA:")
