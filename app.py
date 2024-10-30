@@ -97,12 +97,12 @@ def create_keys(secret, private_key_path, public_key_path):
         f.write(private_key)
     with open(public_key_path, "wb") as f:
         f.write(public_key)
-    print(f"---CLAVES CREADAS Y GUARDAS: \n**PRIVADA: {private_key_path} \n**PUBLICA: {public_key_path}")
+    print(f"---CLAVES CREADAS Y GUARDAS: \n  **PRIVADA: {private_key_path} \n  **PUBLICA: {public_key_path}")
 
 #############################
 @app.route("/")
 def index():
-    print("---VENTANA: INICIAR SESION")
+    print("\n---VENTANA: INICIAR SESION")
     return render_template("iniSesion.html")
 # def index():
 #     if 'symmetric_key' in session:
@@ -120,11 +120,11 @@ def chat():
         username = session.get("username")
         if username is None or room is None or room not in rooms:
             return redirect("/")
-        print("Chat iniciado con claves en sesión.")
+        print("\n\t CHAT INICIADO")
         messages = rooms[room]["messages"]
         return render_template("interfazChat.html", room=room, username=username, messages=messages)
     else:
-        print("No hay sesión iniciada, redirigiendo al inicio.")
+        print("   no hay un chat iniciado\n   volviendo al login")
         return redirect("/")
 
 
@@ -138,21 +138,59 @@ def login():
     initChat = request.form.get("initChat", False)
     genKeys = request.form.get("genKeys", False)
     key_directory = request.form.get("key_directory")
-    print(key_directory)
-    private_key_path = os.path.join(key_directory, "private.pem")
-    public_key_path = os.path.join(key_directory, "public.pem")
-    print("Paths llave Public: ", public_key_path)
-    print("Paths llave Private: ", private_key_path)
-    if not os.path.exists(private_key_path) or not os.path.exists(public_key_path):
-        create_keys(secret, private_key_path, public_key_path)
+    
+    #print(key_directory)
 
-    with open(private_key_path, "rb") as f:
-        private_key_data = f.read()
-    private_key = RSA.import_key(private_key_data, passphrase=secret)
+    ###COPIADO
+    private_key_file = request.files['private_key']
+    public_key_file = request.files['public_key']
+    private_key_filename=request.form.get("private_key_filename") #Nombre de archivo ingresado por usuario
+        #Verificar y ajustar el nombre del archivo .pem
+    print ("llave privada cargada dedes: ", private_key_file)
+    print ("llave publica cargada dedes: ", public_key_file)
+    if private_key_file and public_key_file:
+        private_key_data = private_key_file.read()
+        private_key = RSA.import_key(private_key_data, passphrase=secret)
+        public_key_data = public_key_file.read()
+        public_key = RSA.import_key(public_key_data)
+    else: 
+        if private_key_filename:
+            if not private_key_filename.endswith(".pem"):
+                # Si el archivo no tiene extensión .pem o tiene una extensión incorrecta, se corrige
+                private_key_filename = os.path.splitext(private_key_filename)[0] +".pem"
+            private_key_path = os.path.join(key_directory, "private_" + private_key_filename)
+            public_key_path = os.path.join(key_directory, "public_" + private_key_filename)
+            print("Llave privada en: ", private_key_path)
+            print("Llave publica en : ",public_key_path)
+            
+            create_keys(secret, private_key_path, public_key_path)
+            
+            
+            with open(private_key_path, "rb") as f:
+                private_key_data = f.read()
+            private_key = RSA.import_key(private_key_data, passphrase=secret)
 
-    with open(public_key_path, "rb") as f:
-        public_key_data = f.read()
-    public_key = RSA.import_key(public_key_data)
+            with open(public_key_path, "rb") as f:
+                    public_key_data = f.read()
+            public_key = RSA.import_key(public_key_data)
+            
+        else: 
+            print("Error: Tienes que seleccionar un nombre para el archivo")
+       
+        ###COPIADO
+    
+    
+    
+        #### CREAR ARCHIVOS .PEM
+    # if not public_key_uploaded and not private_key_uploaded:
+    #     if key_directory:      
+    #             create_keys(secret, private_key_path, public_key_path)
+    #     else:
+    #         print("Error: No se especifico directorio para guardar las llaves")
+   
+   
+
+    
 
     password = bytes(secret, 'utf-8')
     salt = get_random_bytes(16)
@@ -177,14 +215,25 @@ def login():
     session['symmetric_key'] = symmetric_key.hex()
     session['messages'] = []
 
-    print("Usuario logueado, sesión iniciada con claves cargadas.")
+    #print("Usuario logueado, sesión iniciada con claves cargadas.")
+    #print("Clave privada RSA:")
+    #print(private_key.export_key().decode())
+    #print("\nClave pública RSA:")
+    #print(public_key.export_key().decode())
+    #print("\nSalt generado:", salt.hex())
+    #print("Clave simétrica derivada:", symmetric_key.hex())
+
+    print("")
+    print("\n\t\tLogin de usuario ")
     # Imprimir información en la terminal
     print("Clave privada RSA:")
     print(private_key.export_key().decode())
-    print("\nClave pública RSA:")
+    print("\nClave publica RSA:")
     print(public_key.export_key().decode())
     print("\nSalt generado:", salt.hex())
     print("Clave simétrica derivada:", symmetric_key.hex())
+    print("\n")
+    
 
     return redirect("/chat")
 
@@ -305,13 +354,34 @@ def handle_message(payload):
     send(message, to=room)
     rooms[room]["messages"].append(message)
 
-    print("\nMensaje cifrado RSA:", encrypted_symmetric_key_b64)
+    print("-/-/-/-/-/-/-/ mensaje enviado /-/-/-/-/-/-/-")
+    print("\n***EMISOR:  ", message["sender"])
+    print("**MENSAJE:  ", message["message"])
+    print("")
+    print("\n****MENSAJE CIFRADO -RSA-:  ", encrypted_symmetric_key_b64)
+    print("**TAG:  ", tag_b64)
+    print("**NONCE (IV):  ", nonce_b64)
+    print("**MENSAJE HASH:  ", message_hash)
+    print("**FIRMA DIGITAL:  ", base64.b64encode(signature).decode())
+
+    
+    """
     print("Mensaje descifrado:", message)
     print("Tag:", tag_b64)
     print("Nonce (IV):", nonce_b64)
     print("Mensaje integro")
+    """
     is_signature_valid = verify_signature(message_hash, signature, public_key)
-    print(f"Mensaje de {username} cifrado.")  # Nuevo: Imprimir el destinatario
+    print("")
+    #print(f"Mensaje de {username} cifrado.")  # Nuevo: Imprimir el destinatario
+
+    #print("\nMensaje cifrado RSA:", encrypted_symmetric_key_b64)
+    #print("Mensaje descifrado:", message)
+    #print("Tag:", tag_b64)
+    #print("Nonce (IV):", nonce_b64)
+    #print("Mensaje integro")
+    #is_signature_valid = verify_signature(message_hash, signature, public_key)
+    #print(f"Mensaje de {username} cifrado.")  # Nuevo: Imprimir el destinatario
 
 @socketio.on('disconnect')
 def handle_disconnect():

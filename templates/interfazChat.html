@@ -1,10 +1,14 @@
 {% extends 'base.html' %} {% block content %}
 <div id="room-container">
-  <h1 id="home-header">Flask Chat 💬</h1>
+  <h1 id="home-header">MSN Messenger &#128228; &#128229;</h1>
 
   <div id="room-subsection">
-    <h2 id="room-code-display">Room Code: <span>{{ room }}</span></h2>
-    <a href="/" id="leave-chat-btn">Leave the Chat</a>
+    <h2 id="room-code-display">
+      &#128246; Chat verificado: <span>{{ room }}</span>
+    </h2>
+    <div style="margin-bottom: 20px"></div>
+
+    <a href="/" id="leave-chat-btn">Abandonar chat</a>
   </div>
 
   <div id="chat-room-widget">
@@ -20,7 +24,9 @@
         id="message-input"
         name="message"
       />
-      <button type="submit" id="send-btn" onclick="sendMessage()">Send</button>
+      <button type="submit" id="send-btn" onclick="sendMessage()">
+        Enviar
+      </button>
     </div>
   </div>
 

@@ -13,10 +13,8 @@
         justify-content: center;
         align-items: center;
         height: 100vh;
-        background-color: hsl(199, 94%, 94%);
-        /* Color de fondo suave */
+        background-color: hsl(199, 94%, 94%); /* Color de fondo suave */
       }
-
       .container {
         width: 450px;
         padding: 20px;
@@ -24,20 +22,16 @@
         border-radius: 12px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
       }
-
       h1 {
         text-align: center;
         color: #007bff;
         margin-bottom: 20px;
       }
-
       label {
         display: block;
         margin-bottom: 5px;
-        font-weight: bold;
-        /* Estilo de fuente para etiquetas */
+        font-weight: bold; /* Estilo de fuente para etiquetas */
       }
-
       input[type="text"],
       input[type="file"] {
         width: calc(100% - 12px);
@@ -47,7 +41,6 @@
         border-radius: 6px;
         font-size: 14px;
       }
-
       button {
         width: 100%;
         padding: 12px;
@@ -60,41 +53,27 @@
       }
 
       .boton-iniciarChat {
-        background-color: #28a745;
-        /* Color de fondo */
-        color: white;
-        /* Color del texto */
-        border: 2px solid black;
-        /* Sin borde */
-        padding: 10px 8px;
-        /* Espaciado interno */
-        text-align: center;
-        /* Centrar texto */
-        display: inline-block;
-        /* Hacer que el botón sea un bloque en línea */
-        font-size: 16px;
-        /* Tamaño de fuente */
-        margin: 4px 2px;
-        /* Margen alrededor del botón */
-        cursor: pointer;
-        /* Cambiar cursor al pasar sobre el botón */
-        border-radius: 20px;
-        /* Bordes redondeados */
+        background-color: #28a745; /* Color de fondo */
+        color: white; /* Color del texto */
+        border: 2px solid black; /* Sin borde */
+        padding: 10px 8px; /* Espaciado interno */
+        text-align: center; /* Centrar texto */
+        display: inline-block; /* Hacer que el botón sea un bloque en línea */
+        font-size: 16px; /* Tamaño de fuente */
+        margin: 4px 2px; /* Margen alrededor del botón */
+        cursor: pointer; /* Cambiar cursor al pasar sobre el botón */
+        border-radius: 20px; /* Bordes redondeados */
         width: 100px;
       }
-
       .boton-iniciarChat:hover {
         background-color: #59d877;
       }
-
       .selected-path {
         margin-top: 10px;
-        font-style: italic;
-        /* Estilo para mostrar la ruta seleccionada */
+        font-style: italic; /* Estilo para mostrar la ruta seleccionada */
       }
     </style>
   </head>
-
   <body>
     <div class="container">
       <h1>Iniciar sesión</h1>
@@ -127,17 +106,33 @@
           name="key_directory"
           placeholder="Ruta de almacenamiento"
         />
+
+        <label for="private_key_filename"> </label>
+        <p style="margin-left: 20px">
+          Nombre de los archivos para almacenar tus claves
+        </p>
+        <input
+          type="text"
+          id="private_key_filename"
+          name="private_key_filename"
+          placeholder="Nombre del archivo"
+        />
+
         {% endif %}
 
         <button id="genKeys" type="submit">Generar y Guardar Claves</button>
         <div style="margin-bottom: 35px"></div>
 
-        <label for="private_key"
-          >Selecciona tu archivo de clave privada (.pem) :</label
-        >
         <p style="margin-left: 20px">Si ya cuentas con tus llaves</p>
+        <label for="private_key"
+          >Selecciona tu archivo de clave privada (.pem):</label
+        >
         <input type="file" id="private_key" name="private_key" accept=".pem" />
-        <div style="margin-bottom: 50px"></div>
+
+        <label for="public_key"
+          >Selecciona tu archivo de clave pública (.pem):</label
+        >
+        <input type="file" id="public_key" name="public_key" accept=".pem" />
 
         <button type="submit" id="initChat">Iniciar Chat</button>
       </form>
