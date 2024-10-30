@@ -1,0 +1,73 @@
+{% extends 'base.html' %} {% block content %}
+<div id="room-container">
+  <h1 id="home-header">Flask Chat 💬</h1>
+
+  <div id="room-subsection">
+    <h2 id="room-code-display">Room Code: <span>{{ room }}</span></h2>
+    <a href="/" id="leave-chat-btn">Leave the Chat</a>
+  </div>
+
+  <div id="chat-room-widget">
+    <div id="msgs-container">
+      <ul id="messages"></ul>
+      <!-- Aquí se renderizan los mensajes -->
+    </div>
+
+    <div id="message-box">
+      <input
+        type="text"
+        placeholder="Enter your message"
+        id="message-input"
+        name="message"
+      />
+      <button type="submit" id="send-btn" onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var socketio = io();
+
+    // Escuchar el evento de mensaje entrante y renderizarlo
+    socketio.on("message", function (message) {
+      createChatItem(message.message, message.sender);
+    });
+
+    // Crear un elemento de mensaje con el nombre del remitente
+    function createChatItem(message, sender) {
+      var messages = document.getElementById("messages");
+      var senderIsUser = "{{ user }}" === sender; // Compara si el usuario es quien envió el mensaje
+
+      var content = `
+                <li class="message-item ${
+                  senderIsUser ? "self-message-item" : "peer-message-item"
+                }">
+                    <strong>${sender}:</strong>  <!-- Mostrar el nombre del remitente -->
+                    <p>${message}</p>
+                    <small class="${
+                      senderIsUser ? "muted-text" : "muted-text-white"
+                    }">${new Date().toLocaleString()}</small>
+                </li>
+            `;
+      messages.innerHTML += content;
+    }
+
+    // Enviar mensaje al servidor con el nombre del usuario
+    function sendMessage() {
+      var msgInput = document.getElementById("message-input");
+      if (msgInput.value === "") return; // Validar entrada vacía
+
+      var msg = msgInput.value;
+      var user = "{{ user }}"; // Tomar el nombre del usuario de la sesión
+
+      socketio.emit("message", { message: msg, sender: user }); // Enviar el mensaje al servidor
+      msgInput.value = ""; // Limpiar la entrada después de enviar
+    }
+  </script>
+
+  {% for message in messages %}
+  <script type="text/javascript">
+    createChatItem("{{ message.message }}", "{{ message.sender }}");
+  </script>
+  {% endfor %}
+</div>
+{% endblock %}
