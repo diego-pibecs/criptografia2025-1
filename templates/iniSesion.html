@@ -1,113 +1,167 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Iniciar sesión</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: hsl(199, 94%, 94%); /* Color de fondo suave */
-            color: #3d3d3d;
-        }
-        .container {
-            width: 450px;
-            padding: 20px;
-            background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-        .container form {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        h1 {
-            text-align: center;
-            color: #007bff;
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            font-weight: bold; /* Estilo de fuente para etiquetas */
-        }
-        input[type="text"], input[type="file"], input[type="password"] {
-            margin-bottom: 5px;
-            padding: 10px;
-            border: 1px solid #000000;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #28a745;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: #b5e1ff; /* Color de fondo al pasar el mouse */
-        }
-        .select-directory {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            padding: 10px;
-            cursor: pointer;
-            text-align: center;
-            margin-bottom: 15px;
-            width: 100%;
-        }
-        .selected-path {
-            margin-top: 10px;
-            font-style: italic; /* Estilo para mostrar la ruta seleccionada */
-        }
-        .directory-container {
-            display: flex;
-            flex-direction: column;
-            background-color: rgba(128, 128, 128, 0.144);
-            padding: 20px;
-            border-radius: 10px;
-            gap: 10px;
-        }
-        #directory-container-title {
-            align-self: center;
-            margin: 10px 0px;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: hsl(199, 94%, 94%);
+        /* Color de fondo suave */
+      }
+
+      .container {
+        width: 450px;
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      h1 {
+        text-align: center;
+        color: #007bff;
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        /* Estilo de fuente para etiquetas */
+      }
+
+      input[type="text"],
+      input[type="file"] {
+        width: calc(100% - 12px);
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #000000;
+        border-radius: 6px;
+        font-size: 14px;
+      }
+
+      button {
+        width: 100%;
+        padding: 12px;
+        background-color: #28a745;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      .boton-iniciarChat {
+        background-color: #28a745;
+        /* Color de fondo */
+        color: white;
+        /* Color del texto */
+        border: 2px solid black;
+        /* Sin borde */
+        padding: 10px 8px;
+        /* Espaciado interno */
+        text-align: center;
+        /* Centrar texto */
+        display: inline-block;
+        /* Hacer que el botón sea un bloque en línea */
+        font-size: 16px;
+        /* Tamaño de fuente */
+        margin: 4px 2px;
+        /* Margen alrededor del botón */
+        cursor: pointer;
+        /* Cambiar cursor al pasar sobre el botón */
+        border-radius: 20px;
+        /* Bordes redondeados */
+        width: 100px;
+      }
+
+      .boton-iniciarChat:hover {
+        background-color: #59d877;
+      }
+
+      .selected-path {
+        margin-top: 10px;
+        font-style: italic;
+        /* Estilo para mostrar la ruta seleccionada */
+      }
     </style>
-</head>
-<body>
+  </head>
+
+  <body>
     <div class="container">
-        <h1>Iniciar sesión</h1>
-        <form action="/login" method="POST" enctype="multipart/form-data">
-            <label for="username">Ingresa tu nombre:</label>
-            <input type="text" id="username" name="username" placeholder="Username" required>
+      <h1>Iniciar sesión</h1>
+      <form action="/login" method="POST" enctype="multipart/form-data">
+        {% if not private_key %}
+        <label for="username">Ingresa tu nombre:</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          placeholder="Username"
+          required
+        />
 
-            <label for="secret">Ingresa tu contraseña:</label>
-            <input type="password" id="secret" name="secret" placeholder="Contraseña" required>
+        <label for="secret">Ingresa tu contraseña:</label>
+        <input
+          type="text"
+          id="secret"
+          name="secret"
+          placeholder="Password"
+          required
+        />
 
-            <div class="directory-container">
-                <h3 id="directory-container-title">Directorio para almacenar claves</h3>
-                <label for="selected_directory">Selecciona y copia la ruta del directorio como texto</label>
-                <input type="text" id="key_directory" name="selected_directory" placeholder="Ruta de almacenamiento" required>
+        <label for="key_directory">Directorio para almacenar claves</label>
+        <p style="margin-left: 20px">Ruta del path para almacenar tus claves</p>
+        <label for="key_directory"></label>
+        <input
+          type="text"
+          id="key_directory"
+          name="key_directory"
+          placeholder="Ruta de almacenamiento"
+        />
+        {% endif %}
 
-                <label for="private_key_filename">Nombre del archivo de clave privada:</label>
-                <input type="text" id="private_key_filename" name="private_key_filename" placeholder="Nombre del archivo" required>
-            </div>
+        <button id="genKeys" type="submit">Generar y Guardar Claves</button>
+        <div style="margin-bottom: 35px"></div>
 
-            <button type="submit">Generar y guardar claves</button>
-        </form>
-        <div class="selected-path" id="selected-path"></div>
+        <label for="private_key"
+          >Selecciona tu archivo de clave privada (.pem) :</label
+        >
+        <p style="margin-left: 20px">Si ya cuentas con tus llaves</p>
+        <input type="file" id="private_key" name="private_key" accept=".pem" />
+        <div style="margin-bottom: 50px"></div>
+
+        <button type="submit" id="initChat">Iniciar Chat</button>
+      </form>
+      <div class="selected-path" id="selected-path"></div>
     </div>
-</body>
+
+    <script>
+      document
+        .getElementById("key_directory")
+        .addEventListener("change", function () {
+          const fullPath = this.files[0].webkitRelativePath; // Obtiene la ruta completa relativa
+          const selectedFolder = fullPath.replace(/\/[^\/]*$/, ""); // Remueve el nombre del archivo para obtener solo la ruta de la carpeta
+          document.getElementById("selected-directory").value = selectedFolder; // Muestra la ruta en el campo de texto
+        });
+
+      document
+        .getElementById("private_key")
+        .addEventListener("change", function () {
+          const directoryPath = fullPath
+            .replace(/\\/g, "/")
+            .replace(/\/[^\/]*$/, ""); // Remueve el nombre del archivo
+          document.getElementById("selected-directory").textContent =
+            "Archivo seleccionado: " + directoryPath;
+        });
+    </script>
+  </body>
 </html>
