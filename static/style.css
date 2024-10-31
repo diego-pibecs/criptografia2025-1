@@ -7,7 +7,7 @@
 body {
     font-family: Arial, Helvetica, sans-serif;
     min-height: 100vh;
-    background-color: lightblue;
+    background-color: rgb(143, 174, 184);
 }
 
 hr {
@@ -149,6 +149,17 @@ hr {
 
 #room-subsection {
     margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#room-subsection h2 {
+    margin-left: 10px;
+}
+
+#room-subsection a {
+    margin-right: 10px;
 }
 
 #room-code-display {
@@ -166,11 +177,11 @@ hr {
 
 #leave-chat-btn {
     color: white;
-    background-color: rgb(226, 29, 29);
+    background-color: #dc3545;
     font-weight: 800;
     text-decoration: none;
-    padding: 6px;
-    border: 2px solid rgb(226, 29, 29);
+    padding: 7px 9px;
+    border: 2px solid #dc3545;
     display: inline-block;
     margin-top: 5px;
     border-radius: 10px;
@@ -178,15 +189,16 @@ hr {
 }
 
 #leave-chat-btn:hover {
-    color: rgb(226, 29, 29);
+    color: #dc3545;
+    border: 2px solid #dc3545;
     background-color: white;
 }
 
 #chat-room-widget {
     height: 100%;
     position: relative;
-    background-color: rgb(191, 237, 255);
-    border: 4px solid rgb(191, 237, 255);
+    background-color: #202c33;
+    border: 4px solid #202c33;
     border-radius: 15px;
 }
 
@@ -195,7 +207,7 @@ hr {
     height: calc(100% - 50px);
     width: 100%;
     overflow-y: auto;
-    background-color: rgb(191, 237, 255);
+    background-color: #202c33;
     padding: 10px;
 }
 
@@ -213,22 +225,27 @@ hr {
 }
 
 #message-input {
+    color: rgba(255, 255, 255, 0.8);
     flex-grow: 1;
     padding: 10px;
+    padding-left: 15px;
     font-size: 1.1rem;
     outline: none;
-    border: 4px solid rgb(191, 237, 255);
+    border: 4px solid #2a3942;
     border-right: none;
-    background-color: white;
+    background-color: #2e414eef;
     border-bottom-left-radius: 15px;
+}
+::-webkit-input-placeholder {
+    color:rgba(255, 255, 255, 0.656);
 }
 
 #send-btn {
     padding: 0 20px;
     font-size: 1.1rem;
-    border: 4px solid rgb(191, 237, 255);
+    border: 4px solid #2a3942;
     border-left: none;
-    background-color: rgb(0, 100, 140);
+    background-color: #2a39427a;
     color: white;
     cursor: pointer;
     border-bottom-right-radius: 15px;

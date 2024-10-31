@@ -1,10 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
   <head>
+    <!-- Configuración básica del documento -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Iniciar sesión</title>
+    <!-- Estilos CSS internos para diseño de la página de inicio de sesión -->
     <style>
+      /* Estilo del cuerpo: fuente general, alineación y color de fondo */
+      * {
+        margin: 0;
+      }
       body {
         font-family: Arial, sans-serif;
         margin: 0;
@@ -14,7 +20,9 @@
         align-items: center;
         height: 100vh;
         background-color: hsl(199, 94%, 94%); /* Color de fondo suave */
+        color: #2d2d2d;
       }
+      /* Contenedor principal para la tarjeta de inicio de sesión */
       .container {
         width: 450px;
         padding: 20px;
@@ -22,25 +30,27 @@
         border-radius: 12px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
       }
+      /* Estilo del título principal */
       h1 {
         text-align: center;
         color: #007bff;
-        margin-bottom: 20px;
+        margin: 20px 0;
       }
+      /* Estilo de etiquetas de texto */
       label {
         display: block;
-        margin-bottom: 5px;
         font-weight: bold; /* Estilo de fuente para etiquetas */
       }
+      /* Estilo de campos de entrada de texto y archivos */
       input[type="text"],
-      input[type="file"] {
-        width: calc(100% - 12px);
+      input[type="file"],
+      input[type="password"] {
         padding: 10px;
-        margin-bottom: 15px;
         border: 1px solid #000000;
         border-radius: 6px;
         font-size: 14px;
       }
+      /* Estilo del botón principal */
       button {
         width: 100%;
         padding: 12px;
@@ -50,113 +60,179 @@
         border-radius: 6px;
         cursor: pointer;
         font-size: 16px;
+        text-align: center;
       }
-
-      .boton-iniciarChat {
-        background-color: #28a745; /* Color de fondo */
-        color: white; /* Color del texto */
-        border: 2px solid black; /* Sin borde */
-        padding: 10px 8px; /* Espaciado interno */
-        text-align: center; /* Centrar texto */
-        display: inline-block; /* Hacer que el botón sea un bloque en línea */
-        font-size: 16px; /* Tamaño de fuente */
-        margin: 4px 2px; /* Margen alrededor del botón */
-        cursor: pointer; /* Cambiar cursor al pasar sobre el botón */
-        border-radius: 20px; /* Bordes redondeados */
-        width: 100px;
-      }
-      .boton-iniciarChat:hover {
-        background-color: #59d877;
-      }
+      /* Estilo para mostrar la ruta de los archivos seleccionados */
       .selected-path {
         margin-top: 10px;
         font-style: italic; /* Estilo para mostrar la ruta seleccionada */
       }
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      input {
+        margin-bottom: 10px;
+      }
+      #keys-directory-container, #keys-directory-container-true {
+        border-radius: 10px;
+        background-color: #9d9d9d23;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .container-title {
+        font-size: 18px;
+        text-align: center;
+        margin-bottom: 15px;
+      }
+      #initChat:hover, #genKeys:hover {
+        background-color: #28a746c2;
+      }
+      #keys-question {
+        margin: auto;
+        margin-top: 10px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+      #keys-question > div {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+      }
+      #yes, #no {
+        font-size: 18px;
+        background-color: #6284ea;
+        color: white;
+        padding: 30px 50px;
+        transition: transform ease-in 0.1s;
+      }
+      #yes:hover, #no:hover {
+        transform: scale(1.05, 1.05);
+        cursor: pointer;
+      }
+      .not-visible {
+        display: none!important;
+      }
     </style>
   </head>
   <body>
+    <!-- Contenedor principal para el formulario de inicio de sesión -->
     <div class="container">
       <h1>Iniciar sesión</h1>
+
+      <!-- Formulario de inicio de sesión con varios campos de entrada -->
       <form action="/login" method="POST" enctype="multipart/form-data">
+
+        <!-- Sección condicional que muestra campos solo si no se ha cargado una clave privada -->
         {% if not private_key %}
+
+        <!-- Campo para ingresar el nombre de usuario -->
         <label for="username">Ingresa tu nombre:</label>
-        <input
-          type="text"
-          id="username"
-          name="username"
-          placeholder="Username"
-          required
-        />
+        <input type="text" id="username" name="username" placeholder="Username" required/>
 
+        <!-- Campo para ingresar la contraseña -->
         <label for="secret">Ingresa tu contraseña:</label>
-        <input
-          type="text"
-          id="secret"
-          name="secret"
-          placeholder="Password"
-          required
-        />
+        <input type="password" id="secret" name="secret" placeholder="Contraseña" required/>
 
-        <label for="key_directory">Directorio para almacenar claves</label>
-        <p style="margin-left: 20px">Ruta del path para almacenar tus claves</p>
-        <label for="key_directory"></label>
-        <input
-          type="text"
-          id="key_directory"
-          name="key_directory"
-          placeholder="Ruta de almacenamiento"
-        />
+        <div id="keys-question">
+          <h3>¿Cuentas con tus claves?</h3>
+          <div>
+            <div id="yes">
+              Sí
+            </div>
+            <div id="no">
+              No
+            </div>
+          </div>
+        </div>
 
-        <label for="private_key_filename"> </label>
-        <p style="margin-left: 20px">
-          Nombre de los archivos para almacenar tus claves
-        </p>
-        <input
-          type="text"
-          id="private_key_filename"
-          name="private_key_filename"
-          placeholder="Nombre del archivo"
-        />
+        <div id="keys-directory-container" class="not-visible">
+          <!-- Campo para definir el directorio de almacenamiento de claves -->
+          <label for="key_directory" class="container-title">Directorio para almacenar y generar claves</label>
+          <p>Ruta del directorio para almacenar tus claves</p>
+          <label for="key_directory"></label>
+          <input type="text" id="key_directory" name="key_directory" placeholder="Ruta absoluta"/>
 
-        {% endif %}
+          <!-- Campo para definir el nombre de los archivos de claves -->
+          <label for="private_key_filename"> </label>
+          <p>Nombre del archivo para generar tu clave privada</p>
+          <input type="text" id="private_key_filename" name="private_key_filename" placeholder="Nombre del archivo"/>
+          {% endif %}
 
-        <button id="genKeys" type="submit">Generar y Guardar Claves</button>
-        <div style="margin-bottom: 35px"></div>
+          <!-- Botón para generar y guardar las claves -->
+          <button id="genKeys" type="submit">Generar claves e iniciar chat</button>
+        </div>
+        
+        <div id="keys-directory-container-true" class="not-visible">
+          <label class="container-title">Selecciona los archivos de tus claves</label>
+          <!-- Campo para seleccionar el archivo de clave privada -->
+          <label for="private_key">Clave privada (.pem):</label>
+          <input type="file" id="private_key" name="private_key" accept=".pem" />
 
-        <p style="margin-left: 20px">Si ya cuentas con tus llaves</p>
-        <label for="private_key"
-          >Selecciona tu archivo de clave privada (.pem):</label
-        >
-        <input type="file" id="private_key" name="private_key" accept=".pem" />
+          <!-- Campo para seleccionar el archivo de clave pública -->
+          <label for="public_key">Clave pública (.pem):</label>
+          <input type="file" id="public_key" name="public_key" accept=".pem" />
+        </div>
+        
 
-        <label for="public_key"
-          >Selecciona tu archivo de clave pública (.pem):</label
-        >
-        <input type="file" id="public_key" name="public_key" accept=".pem" />
-
-        <button type="submit" id="initChat">Iniciar Chat</button>
+        <!-- Botón para iniciar el chat, estilo y tamaño ajustados -->
+        <button type="submit" id="initChat" class="not-visible">Iniciar chat</button>
       </form>
+
+      <!-- Elemento para mostrar la ruta seleccionada en un campo de texto adicional -->
       <div class="selected-path" id="selected-path"></div>
     </div>
 
+    <!-- Scripts de JavaScript para la lógica de selección de archivos -->
     <script>
-      document
-        .getElementById("key_directory")
-        .addEventListener("change", function () {
+      document.getElementById("key_directory").addEventListener("change", function () {
+          // Obtiene la ruta completa y ajusta la visualización de la carpeta seleccionada
           const fullPath = this.files[0].webkitRelativePath; // Obtiene la ruta completa relativa
           const selectedFolder = fullPath.replace(/\/[^\/]*$/, ""); // Remueve el nombre del archivo para obtener solo la ruta de la carpeta
           document.getElementById("selected-directory").value = selectedFolder; // Muestra la ruta en el campo de texto
         });
 
-      document
-        .getElementById("private_key")
-        .addEventListener("change", function () {
+      document.getElementById("private_key").addEventListener("change", function () {
+          // Ajusta y muestra la ruta del archivo seleccionado
           const directoryPath = fullPath
             .replace(/\\/g, "/")
             .replace(/\/[^\/]*$/, ""); // Remueve el nombre del archivo
           document.getElementById("selected-directory").textContent =
             "Archivo seleccionado: " + directoryPath;
         });
+
+      
+      let conditional = 0;
+      let keysFieldsIfTrue = document.getElementById("keys-directory-container");
+      let keysFieldsIfFalse = document.getElementById("keys-directory-container-true");
+      let questionContainer = document.getElementById("keys-question");
+
+      document.getElementById("yes").addEventListener("click", () => {
+        conditional = 1;
+        changeVisibleState();
+        document.getElementById("initChat").removeAttribute("class", "not-visible");
+        questionContainer.setAttribute("class", "not-visible");
+      })
+
+      document.getElementById("no").addEventListener("click", () => {
+        conditional = 2;
+        changeVisibleState();
+        questionContainer.setAttribute("class", "not-visible");
+      })
+
+      function changeVisibleState() {
+        if (conditional == 2) {
+          keysFieldsIfTrue.removeAttribute("class", "not-visible");
+        } else if (conditional == 1) {
+          keysFieldsIfFalse.removeAttribute("class", "not-visible");
+        }
+      }
+      
     </script>
   </body>
 </html>

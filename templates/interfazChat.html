@@ -1,29 +1,28 @@
+
+
 {% extends 'base.html' %} {% block content %}
 <div id="room-container">
+  <!-- Título principal del chat con iconos decorativos -->
   <h1 id="home-header">MSN Messenger &#128228; &#128229;</h1>
 
   <div id="room-subsection">
-    <h2 id="room-code-display">
-      &#128246; Chat verificado: <span>{{ room }}</span>
-    </h2>
-    <div style="margin-bottom: 20px"></div>
-
-    <a href="/" id="leave-chat-btn">Abandonar chat</a>
+    <!-- Muestra el código de la sala de chat verificado, insertando el valor de la variable 'room' -->
+    <h2 id="room-code-display">&#128246; Chat verificado: <span>{{ room }}</span></h2>
+    <!-- Botón para salir de la sala de chat y redirigir a la página principal -->
+    <a href="/" id="leave-chat-btn">Cerrar sesión</a>
   </div>
 
   <div id="chat-room-widget">
     <div id="msgs-container">
+      <!-- Contenedor de mensajes, donde cada mensaje será insertado como un elemento <li> -->
       <ul id="messages"></ul>
       <!-- Aquí se renderizan los mensajes -->
     </div>
 
+    <!-- Sección de entrada de texto para enviar mensajes -->
     <div id="message-box">
-      <input
-        type="text"
-        placeholder="Enter your message"
-        id="message-input"
-        name="message"
-      />
+      <input type="text" placeholder="Ingresa un mensaje" id="message-input" name="message"/>
+      <!-- Botón de envío de mensajes que ejecuta la función 'sendMessage()' en el clic -->
       <button type="submit" id="send-btn" onclick="sendMessage()">
         Enviar
       </button>
@@ -33,15 +32,15 @@
   <script type="text/javascript">
     var socketio = io();
 
-    // Escuchar el evento de mensaje entrante y renderizarlo
+    // Escucha los mensajes entrantes desde el servidor y los muestra en la interfaz
     socketio.on("message", function (message) {
       createChatItem(message.message, message.sender);
     });
 
-    // Crear un elemento de mensaje con el nombre del remitente
+    // Crea un nuevo elemento de mensaje y lo agrega al contenedor de mensajes
     function createChatItem(message, sender) {
       var messages = document.getElementById("messages");
-      var senderIsUser = "{{ user }}" === sender; // Compara si el usuario es quien envió el mensaje
+      var senderIsUser = "{{ user }}" === sender; // Determina si el mensaje es del usuario actual
 
       var content = `
                 <li class="message-item ${
@@ -54,24 +53,26 @@
                     }">${new Date().toLocaleString()}</small>
                 </li>
             `;
+      // Inserta el mensaje en el contenedor de mensajes
       messages.innerHTML += content;
     }
 
-    // Enviar mensaje al servidor con el nombre del usuario
+     // Envía un mensaje al servidor con el nombre del usuario
     function sendMessage() {
       var msgInput = document.getElementById("message-input");
-      if (msgInput.value === "") return; // Validar entrada vacía
+      if (msgInput.value === "") return; // Verifica si el campo de mensaje está vacío antes de enviar
 
       var msg = msgInput.value;
-      var user = "{{ user }}"; // Tomar el nombre del usuario de la sesión
+      var user = "{{ user }}"; // Obtiene el nombre del usuario actual desde la sesión
 
-      socketio.emit("message", { message: msg, sender: user }); // Enviar el mensaje al servidor
-      msgInput.value = ""; // Limpiar la entrada después de enviar
+      socketio.emit("message", { message: msg, sender: user }); // Envía el mensaje al servidor
+      msgInput.value = ""; // Limpia el campo de entrada después de enviar el mensaje
     }
   </script>
 
   {% for message in messages %}
   <script type="text/javascript">
+    // Renderiza mensajes previos en la sala al cargar la interfaz
     createChatItem("{{ message.message }}", "{{ message.sender }}");
   </script>
   {% endfor %}

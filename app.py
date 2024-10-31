@@ -1,8 +1,23 @@
-### RECONSTRUIDO ###
+"""
+Universidad Nacional Autonoma de Mexico
+Facultad de ingenieria
 
+Proyecto 1:  Implementacion de un protocolo de comunicacion segura
+
+  Criptografia
+  Profesora: Aldeco Perez Rocio Alejandra
+  Grupo: 03
+
+Integrantes:
+    Arroyo Moreno Diego Alejandro
+    Ceron Maciel Eduardo Alfredo   
+    Miranda Bueno Fatima Yolanda
+    Ortega Gaytan Alan Eduardo
+"""
+
+    #Importacion de librerias
 from flask import Flask, render_template, request, jsonify, redirect, session
 from flask_socketio import SocketIO, join_room, leave_room, send
-#from flask_session import Session
 from Crypto.PublicKey import RSA
 
 from Crypto.Random import get_random_bytes
@@ -19,18 +34,26 @@ from uuid import uuid4
 import random
 import string
 
-
+#Configuracion de aplicacion Flask y Socket.IO: para comunicacion en tiempo real
 app = Flask(__name__)
 app.secret_key = 'CriptografiaProyecto'
 socketio = SocketIO(app)
-#app.config['SESSION_TYPE'] = 'filesystem'
 
-#Session(app)
-
+# Estructuras de datos para almacenar información de las salas de chat y sus códigos
 rooms = {} #Salas
 current_room_code = None
 
+#Generar codigo unico para salas de chat
 def generate_room_code(length: int, existing_codes: list[str]) -> str:
+    """Genera un código único para cada sala de chat basado en caracteres aleatorios.
+
+    Args:
+        length (int): longitud del código a generar.
+        existing_codes (list): lista de códigos ya existentes para evitar duplicados.
+
+    Returns:
+        str: código único generado.
+    """
     while True:
         code_chars = [random.choice(string.ascii_letters) for _ in range (length)]
         code = ''.join(code_chars)
@@ -38,17 +61,36 @@ def generate_room_code(length: int, existing_codes: list[str]) -> str:
         if code not in existing_codes:
             return code
 
+#Genera un identificador de sesión único usando UUID
 def generate_unique_session_id():
     return str(uuid4())
 
-
+#FIRMA DIGITAL de mensaje, 
 def sign_message(message, private_key):
+    """Genera una firma digital para un mensaje usando SHA256 y una clave privada.
+
+    Args:
+        message (str): el mensaje a firmar.
+        private_key (RSA key): clave privada para firmar el mensaje.
+
+    Returns:
+        bytes: firma digital generada.
+    """
     h = SHA256.new(message.encode())
     signature = pkcs1_15.new(private_key).sign(h)
     return signature
 
-
+#Verifica la firma digital de un mensaje utilizando la clave pública.
 def verify_signature(message, signature, public_key):
+    """
+    Args:
+        message (str): el mensaje original.
+        signature (bytes): la firma digital.
+        public_key (RSA key): clave pública para verificar la firma.
+
+    Returns:
+        bool: True si la firma es válida, False en caso contrario.
+    """
     h = SHA256.new(message.encode())
     try:
         pkcs1_15.new(public_key).verify(h, signature)
@@ -58,27 +100,60 @@ def verify_signature(message, signature, public_key):
         print("---FIRMA !!NO!! VALIDA")
         return False
 
-
+#Cifra un mensaje utilizando AES en modo GCM (cifrado simétrico).
 def encrypt_symmetric(message, key):
+    """
+    Args:
+        message (str): mensaje a cifrar.
+        key (bytes): clave de cifrado simétrica.
+
+    Returns:
+        tuple: mensaje cifrado, tag de autenticación y nonce.
+    """
     cipher = AES.new(key, AES.MODE_GCM)
     ciphertext, tag = cipher.encrypt_and_digest(message.encode())
     nonce = cipher.nonce
     return ciphertext, tag, nonce
 
-
+#Cifra datos utilizando RSA (cifrado asimétrico).
 def encrypt_asymmetric(data, public_key):
+    """
+    Args:
+        data (bytes): datos a cifrar.
+        public_key (RSA key): clave pública para cifrar.
+
+    Returns:
+        bytes: datos cifrados.
+    """
     cipher_rsa = PKCS1_OAEP.new(public_key)
     encrypted_data = cipher_rsa.encrypt(data)
     return encrypted_data
 
-
+#Calcula el hash SHA256 de un mensaje.
 def hash_message(message):
+    """
+    Args:
+        message (str): mensaje a procesar.
+
+    Returns:
+        str: hash del mensaje en hexadecimal.
+    """
     hash_object = hashlib.sha256()
     hash_object.update(message.encode())
     return hash_object.hexdigest()
 
 
 def pbkdf(password, salt, length):
+    """Deriva una clave utilizando el método PBKDF2 con HMAC-SHA256.
+
+    Args:
+        password (bytes): contraseña original.
+        salt (bytes): sal para el proceso de derivación.
+        length (int): longitud deseada para la clave derivada.
+
+    Returns:
+        bytes: clave derivada.
+    """
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=length,
@@ -90,6 +165,13 @@ def pbkdf(password, salt, length):
 
 
 def create_keys(secret, private_key_path, public_key_path):
+    """Genera y almacena un par de claves RSA en archivos.
+
+    Args:
+        secret (str): frase de contraseña para proteger la clave privada.
+        private_key_path (str): ruta para almacenar la clave privada.
+        public_key_path (str): ruta para almacenar la clave pública.
+    """
     key = RSA.generate(2048)
     private_key = key.export_key(passphrase=secret)
     public_key = key.publickey().export_key()
@@ -97,23 +179,19 @@ def create_keys(secret, private_key_path, public_key_path):
         f.write(private_key)
     with open(public_key_path, "wb") as f:
         f.write(public_key)
-    print(f"---CLAVES CREADAS Y GUARDAS: \n  **PRIVADA: {private_key_path} \n  **PUBLICA: {public_key_path}")
+    print(f"\n---CLAVES CREADAS Y GUARDAS: \n  **PRIVADA: {private_key_path} \n  **PUBLICA: {public_key_path}")
 
-#############################
+
 @app.route("/")
 def index():
-    print("\n---VENTANA: INICIAR SESION")
+    #Renderiza  página inicial de login
+    print("\n---VENTANA: INICIAR SESION---")
     return render_template("iniSesion.html")
-# def index():
-#     if 'symmetric_key' in session:
-#         print("---VENTANA: CHAT")
-#         return redirect("/chat")
-#     else:
-#         print("---VENTANA: INICIAR SESION")
-#         return render_template("iniSesion.html")
+
 
 
 @app.route("/chat")
+#Gestiona la visualización de la interfaz de chat verificando la sesión y el código de sala.
 def chat():
     if 'symmetric_key' in session:
         room = session.get("room")
@@ -124,11 +202,12 @@ def chat():
         messages = rooms[room]["messages"]
         return render_template("interfazChat.html", room=room, username=username, messages=messages)
     else:
-        print("   no hay un chat iniciado\n   volviendo al login")
+        print("   NO HAY CHAT INICIADO\n   VOLVIENDO A LOGIN")
         return redirect("/")
 
 
 @app.route("/login", methods=["POST"])
+#Gestiona el proceso de autenticación y generación de claves para el usuario, creando claves si no existen.
 def login():
     global current_room_code  # Hacer referencia a la variable global
 
@@ -139,15 +218,12 @@ def login():
     genKeys = request.form.get("genKeys", False)
     key_directory = request.form.get("key_directory")
     
-    #print(key_directory)
 
-    ###COPIADO
     private_key_file = request.files['private_key']
     public_key_file = request.files['public_key']
     private_key_filename=request.form.get("private_key_filename") #Nombre de archivo ingresado por usuario
         #Verificar y ajustar el nombre del archivo .pem
-    print ("llave privada cargada dedes: ", private_key_file)
-    print ("llave publica cargada dedes: ", public_key_file)
+    
     if private_key_file and public_key_file:
         private_key_data = private_key_file.read()
         private_key = RSA.import_key(private_key_data, passphrase=secret)
@@ -160,11 +236,8 @@ def login():
                 private_key_filename = os.path.splitext(private_key_filename)[0] +".pem"
             private_key_path = os.path.join(key_directory, "private_" + private_key_filename)
             public_key_path = os.path.join(key_directory, "public_" + private_key_filename)
-            print("Llave privada en: ", private_key_path)
-            print("Llave publica en : ",public_key_path)
             
             create_keys(secret, private_key_path, public_key_path)
-            
             
             with open(private_key_path, "rb") as f:
                 private_key_data = f.read()
@@ -175,28 +248,16 @@ def login():
             public_key = RSA.import_key(public_key_data)
             
         else: 
-            print("Error: Tienes que seleccionar un nombre para el archivo")
+            print("***\nERROR: !!!Tienes que seleccionar un nombre para el archivo!!!: \n")
        
-        ###COPIADO
-    
-    
-    
-        #### CREAR ARCHIVOS .PEM
-    # if not public_key_uploaded and not private_key_uploaded:
-    #     if key_directory:      
-    #             create_keys(secret, private_key_path, public_key_path)
-    #     else:
-    #         print("Error: No se especifico directorio para guardar las llaves")
-   
-   
-
-    
-
+    # Generación de clave simétrica y configuración de sala de chat
     password = bytes(secret, 'utf-8')
     salt = get_random_bytes(16)
     symmetric_key = pbkdf(password, salt, 32)
-    # Lógica para manejar rooms
-    # Generar el código de room si no existe
+
+            # Lógica para manejar rooms
+        # Generar el código de room si no existe
+    # Crea una sala de chat y asocia los datos de sesión
     if current_room_code is None:
         current_room_code = generate_room_code(6, list(rooms.keys()))
         rooms[current_room_code] = {
@@ -215,16 +276,8 @@ def login():
     session['symmetric_key'] = symmetric_key.hex()
     session['messages'] = []
 
-    #print("Usuario logueado, sesión iniciada con claves cargadas.")
-    #print("Clave privada RSA:")
-    #print(private_key.export_key().decode())
-    #print("\nClave pública RSA:")
-    #print(public_key.export_key().decode())
-    #print("\nSalt generado:", salt.hex())
-    #print("Clave simétrica derivada:", symmetric_key.hex())
-
     print("")
-    print("\n\t\tLogin de usuario ")
+    print("\n\t\t---LOGIN DE USUARIO--- ")
     # Imprimir información en la terminal
     print("Clave privada RSA:")
     print(private_key.export_key().decode())
@@ -234,69 +287,10 @@ def login():
     print("Clave simétrica derivada:", symmetric_key.hex())
     print("\n")
     
-
     return redirect("/chat")
 
-
-@app.route("/send_message", methods=["POST"])
-def send_message():
-    if 'symmetric_key' not in session:
-        return jsonify({"error": "Debes iniciar sesión para enviar mensajes."}), 403
-
-    username = request.form["username"]
-    message = request.form["message"]
-    recipient = request.form["recipient"]
-    symmetric_key = bytes.fromhex(session['symmetric_key'])
-    private_key = RSA.import_key(session['private_key'].encode())
-
-    message_hash = hash_message(message)
-    signature = sign_message(message_hash, private_key)
-    ciphertext, tag, nonce = encrypt_symmetric(message, symmetric_key)
-    public_key = RSA.import_key(session['public_key'].encode())
-    encrypted_symmetric_key = encrypt_asymmetric(symmetric_key, public_key)
-
-    # Codificar datos binarios a Base64 para serialización en JSON
-    ciphertext_b64 = base64.b64encode(ciphertext).decode()
-    tag_b64 = base64.b64encode(tag).decode()
-    nonce_b64 = base64.b64encode(nonce).decode()
-    encrypted_symmetric_key_b64 = base64.b64encode(encrypted_symmetric_key).decode()
-
-    message_info = {
-        "username": username,
-        "recipient": recipient,  # Nuevo: Guardar el nombre del destinatario
-        "message": message,
-        "ciphertext": ciphertext_b64,
-        "tag": tag_b64,
-        "nonce": nonce_b64,
-        "encrypted_symmetric_key": encrypted_symmetric_key_b64,
-        "message_hash": message_hash,
-        "signature": base64.b64encode(signature).decode()
-    }
-    session['messages'].append(message_info)
-
-    print("\nMensaje cifrado RSA:", encrypted_symmetric_key_b64)
-    print("Mensaje descifrado:", message)
-    print("Tag:", tag_b64)
-    print("Nonce (IV):", nonce_b64)
-    print("Mensaje integro")
-    is_signature_valid = verify_signature(message_hash, signature, public_key)
-    print(f"Mensaje de {username} cifrado y enviado a {recipient}.")  # Nuevo: Imprimir el destinatario
-    return jsonify({"username": username, "message": message})
-
-@app.route("/get_messages")
-def get_messages():
-    print("Recuperando mensajes de la sesión...")
-    messages = session.get('messages', [])
-    return jsonify({"messages": messages})
-
-@app.route("/logout", methods=['POST'])
-def logout():
-    print("Cerrando sesión y limpiando datos...")
-    session.clear()
-    return redirect("/")
-
-
 @socketio.on('connect')
+#Gestiona la conexión de un usuario al chat mediante Socket.IO, asignándolo a una sala
 def handle_connect():
     username = session.get('username')
     room = session.get('room')
@@ -314,6 +308,11 @@ def handle_connect():
 
 @socketio.on('message')
 def handle_message(payload):
+    """Procesa un mensaje recibido en tiempo real, lo cifra y lo envía a la sala correspondiente.
+
+    Args:
+        payload (dict): diccionario que contiene los datos del mensaje.
+    """
     room = session.get('room')
     username = session.get('username')
 
@@ -325,6 +324,7 @@ def handle_message(payload):
     symmetric_key = bytes.fromhex(session['symmetric_key'])
     private_key = RSA.import_key(session['private_key'].encode())
 
+    # Cifra y firma el mensaje antes de enviarlo
     message_hash = hash_message(message)
     signature = sign_message(message_hash, private_key)
     
@@ -339,7 +339,7 @@ def handle_message(payload):
     nonce_b64 = base64.b64encode(nonce).decode()
     encrypted_symmetric_key_b64 = base64.b64encode(encrypted_symmetric_key).decode()
 
-    
+    # Codificación para envío en JSON
     message = {
         "sender": username,
         "message": payload["message"],
@@ -353,37 +353,23 @@ def handle_message(payload):
 
     send(message, to=room)
     rooms[room]["messages"].append(message)
-
-    print("-/-/-/-/-/-/-/ mensaje enviado /-/-/-/-/-/-/-")
-    print("\n***EMISOR:  ", message["sender"])
+        #TEST E INFO EN TERMINAL
+    print("\n-/-/-/-/-/-/-/ mensaje enviado /-/-/-/-/-/-/-")
+    print("***EMISOR:  ", message["sender"])
     print("**MENSAJE:  ", message["message"])
     print("")
-    print("\n****MENSAJE CIFRADO -RSA-:  ", encrypted_symmetric_key_b64)
-    print("**TAG:  ", tag_b64)
-    print("**NONCE (IV):  ", nonce_b64)
-    print("**MENSAJE HASH:  ", message_hash)
-    print("**FIRMA DIGITAL:  ", base64.b64encode(signature).decode())
+    print("\n****MENSAJE CIFRADO -RSA:  ", encrypted_symmetric_key_b64)
+    print("****TAG:  ", tag_b64)
+    print("****NONCE (IV):  ", nonce_b64)
+    print("****MENSAJE HASH:  ", message_hash)
+    print("****FIRMA DIGITAL:  ", base64.b64encode(signature).decode())
 
-    
-    """
-    print("Mensaje descifrado:", message)
-    print("Tag:", tag_b64)
-    print("Nonce (IV):", nonce_b64)
-    print("Mensaje integro")
-    """
     is_signature_valid = verify_signature(message_hash, signature, public_key)
     print("")
-    #print(f"Mensaje de {username} cifrado.")  # Nuevo: Imprimir el destinatario
 
-    #print("\nMensaje cifrado RSA:", encrypted_symmetric_key_b64)
-    #print("Mensaje descifrado:", message)
-    #print("Tag:", tag_b64)
-    #print("Nonce (IV):", nonce_b64)
-    #print("Mensaje integro")
-    #is_signature_valid = verify_signature(message_hash, signature, public_key)
-    #print(f"Mensaje de {username} cifrado.")  # Nuevo: Imprimir el destinatario
 
 @socketio.on('disconnect')
+#Gestiona la desconexión de un usuario, eliminándolo de la sala y limpiando los datos si es necesario
 def handle_disconnect():
     room = session.get('room')
     username = session.get("username")
