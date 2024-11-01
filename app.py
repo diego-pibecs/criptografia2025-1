@@ -1,11 +1,11 @@
 """
-Universidad Nacional Autonoma de Mexico
-Facultad de ingenieria
+Universidad Nacional Autónoma de México
+Facultad de Ingeniería
 
-Proyecto 1:  Implementacion de un protocolo de comunicacion segura
+Proyecto 1:  Implementación de un protocolo de comunicación segura
 
   Criptografia
-  Profesora: Aldeco Perez Rocio Alejandra
+  Profesora: Aldeco Pérez Rocío Alejandra
   Grupo: 03
 
 Integrantes:

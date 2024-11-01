@@ -1,11 +1,11 @@
 # secure-comm-protocol
-Este repositorio corresponde al proyecto de la materia de Criptografía que consiste en la creación de un protocolo seguro de comunicación que implementará cifrado asimétrico, cifrado cimétrico y un web app para la comunicación. 
+Este repositorio corresponde al proyecto de la materia de Criptografía que consiste en la creación de un protocolo seguro de comunicación que implementará cifrado asimétrico, cifrado simétrico y una aplicación web para realizar la comunicación. 
 
 ## Institución 
-Universidad Nacional Autonoma de Mexico
-Facultad de ingenieria
+**Universidad Nacional Autónoma de México**
+Facultad de Ingeniería
 
-Proyecto 1:  Implementacion de un protocolo de comunicacion segura
+**Proyecto 1**  Implementación de un protocolo de comunicacion segura
 
 ## Autores ✒️
 
@@ -17,7 +17,7 @@ Proyecto 1:  Implementacion de un protocolo de comunicacion segura
 
 ## Comenzando 🚀
 
-Para comenzar se debe de clonar el repositorio de la siguiente manera: 
+Para comenzar, se debe de clonar el repositorio de la siguiente manera:
 
 ```bash
 git clone https://github.com/diego-pibecs/criptografia2025-1.git
@@ -30,10 +30,10 @@ git branch -a
 
 ### Pre-requisitos 📋
 
-- Es necesario tener python instalado, al menos la versión 3.10.
-- Tener instalado el manejador de paquetes pip.
+- Es necesario tener Python instalado, al menos la versión 3.10.
+- Tener instalado el manejador de paquetes _pip_.
 
-Los siquientes modulos de python son necesarios: 
+Los siquientes módulos de Python son necesarios: 
 
 - bidict==0.23.1
 - blinker==1.8.2
@@ -55,7 +55,7 @@ Los siquientes modulos de python son necesarios:
 - Werkzeug==3.0.6
 - wsproto==1.2.0
 
-**Es recomendable tener git instalado para poder clonar el repositorio, aunque no necesariamente es la única forma de hacerlo**
+_Es recomendable tener Git instalado para poder clonar el repositorio, aunque no es la única forma de hacerlo._
 
 ### Instalación 🔧
 
@@ -74,17 +74,16 @@ python3 -m venv <nombre_del_entorno_virtual>
 Para activar el entorno virtual en Windows:
 
 ```bash
-<(nombre_del_entorno_virtual>\Scripts\activate)
+.<nombre_del_entorno_virtual>\Scripts\activate
 ```
 
-Para activar el entorno virtual en MacOs o Linux:
-
+Para activar el entorno virtual en MacOS o Linux:
 
 ```bash
-source <(nombre_del_entorno_virtual>\Scripts\activate)
-
+source <nombre_del_entorno_virtual>/bin/activate
 ```
-Para instalar los módulos mediante el archivo requirements.txt 
+
+Para instalar los módulos rápidamente con el archivo requirements.txt 
 
 ```bash
 pip install -r requirements.txt
@@ -98,7 +97,7 @@ pip freeze
 
 ## Despliegue 📦
 
-Para poder desplegar la aplicación web ejecuta el comando:
+Para poder desplegar la aplicación web, ejecuta el comando:
 
 ```bash
 python app.py
