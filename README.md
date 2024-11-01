@@ -74,14 +74,14 @@ python3 -m venv <nombre_del_entorno_virtual>
 Para activar el entorno virtual en Windows:
 
 ```bash
-(nombre_del_entorno_virtual>\Scripts\activate)
+<(nombre_del_entorno_virtual>\Scripts\activate)
 ```
 
 Para activar el entorno virtual en MacOs o Linux:
 
 
 ```bash
-source (nombre_del_entorno_virtual>\Scripts\activate)
+source <(nombre_del_entorno_virtual>\Scripts\activate)
 
 ```
 Para instalar los módulos mediante el archivo requirements.txt 
