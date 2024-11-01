@@ -75,7 +75,8 @@
       input {
         margin-bottom: 10px;
       }
-      #keys-directory-container, #keys-directory-container-true {
+      #keys-directory-container,
+      #keys-directory-container-true {
         border-radius: 10px;
         background-color: #9d9d9d23;
         padding: 20px;
@@ -88,7 +89,8 @@
         text-align: center;
         margin-bottom: 15px;
       }
-      #initChat:hover, #genKeys:hover {
+      #initChat:hover,
+      #genKeys:hover {
         background-color: #28a746c2;
       }
       #keys-question {
@@ -104,19 +106,21 @@
         justify-content: center;
         gap: 15px;
       }
-      #yes, #no {
+      #yes,
+      #no {
         font-size: 18px;
         background-color: #6284ea;
         color: white;
         padding: 30px 50px;
         transition: transform ease-in 0.1s;
       }
-      #yes:hover, #no:hover {
+      #yes:hover,
+      #no:hover {
         transform: scale(1.05, 1.05);
         cursor: pointer;
       }
       .not-visible {
-        display: none!important;
+        display: none !important;
       }
     </style>
   </head>
@@ -127,61 +131,90 @@
 
       <!-- Formulario de inicio de sesión con varios campos de entrada -->
       <form action="/login" method="POST" enctype="multipart/form-data">
-
         <!-- Sección condicional que muestra campos solo si no se ha cargado una clave privada -->
         {% if not private_key %}
 
         <!-- Campo para ingresar el nombre de usuario -->
         <label for="username">Ingresa tu nombre:</label>
-        <input type="text" id="username" name="username" placeholder="Username" required/>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          placeholder="Username"
+          required
+        />
 
         <!-- Campo para ingresar la contraseña -->
         <label for="secret">Ingresa tu contraseña:</label>
-        <input type="password" id="secret" name="secret" placeholder="Contraseña" required/>
+        <input
+          type="password"
+          id="secret"
+          name="secret"
+          placeholder="Contraseña"
+          required
+        />
 
         <div id="keys-question">
           <h3>¿Cuentas con tus claves?</h3>
           <div>
-            <div id="yes">
-              Sí
-            </div>
-            <div id="no">
-              No
-            </div>
+            <div id="yes">Sí</div>
+            <div id="no">No</div>
           </div>
         </div>
 
         <div id="keys-directory-container" class="not-visible">
           <!-- Campo para definir el directorio de almacenamiento de claves -->
-          <label for="key_directory" class="container-title">Directorio para almacenar y generar claves</label>
+          <label for="key_directory" class="container-title"
+            >Directorio para almacenar y generar claves</label
+          >
           <p>Ruta del directorio para almacenar tus claves</p>
           <label for="key_directory"></label>
-          <input type="text" id="key_directory" name="key_directory" placeholder="Ruta absoluta"/>
+          <input
+            type="text"
+            id="key_directory"
+            name="key_directory"
+            placeholder="Ruta absoluta"
+          />
 
           <!-- Campo para definir el nombre de los archivos de claves -->
           <label for="private_key_filename"> </label>
           <p>Nombre del archivo para generar tu clave privada</p>
-          <input type="text" id="private_key_filename" name="private_key_filename" placeholder="Nombre del archivo"/>
+          <input
+            type="text"
+            id="private_key_filename"
+            name="private_key_filename"
+            placeholder="Nombre del archivo"
+          />
           {% endif %}
 
           <!-- Botón para generar y guardar las claves -->
-          <button id="genKeys" type="submit">Generar claves e iniciar chat</button>
+          <button id="genKeys" type="submit">
+            Generar claves e iniciar chat
+          </button>
         </div>
-        
+
         <div id="keys-directory-container-true" class="not-visible">
-          <label class="container-title">Selecciona los archivos de tus claves</label>
+          <label class="container-title"
+            >Selecciona los archivos de tus claves</label
+          >
           <!-- Campo para seleccionar el archivo de clave privada -->
           <label for="private_key">Clave privada (.pem):</label>
-          <input type="file" id="private_key" name="private_key" accept=".pem" />
+          <input
+            type="file"
+            id="private_key"
+            name="private_key"
+            accept=".pem"
+          />
 
           <!-- Campo para seleccionar el archivo de clave pública -->
           <label for="public_key">Clave pública (.pem):</label>
           <input type="file" id="public_key" name="public_key" accept=".pem" />
         </div>
-        
 
         <!-- Botón para iniciar el chat, estilo y tamaño ajustados -->
-        <button type="submit" id="initChat" class="not-visible">Iniciar chat</button>
+        <button type="submit" id="initChat" class="not-visible">
+          Iniciar chat
+        </button>
       </form>
 
       <!-- Elemento para mostrar la ruta seleccionada en un campo de texto adicional -->
@@ -190,14 +223,18 @@
 
     <!-- Scripts de JavaScript para la lógica de selección de archivos -->
     <script>
-      document.getElementById("key_directory").addEventListener("change", function () {
+      document
+        .getElementById("key_directory")
+        .addEventListener("change", function () {
           // Obtiene la ruta completa y ajusta la visualización de la carpeta seleccionada
           const fullPath = this.files[0].webkitRelativePath; // Obtiene la ruta completa relativa
           const selectedFolder = fullPath.replace(/\/[^\/]*$/, ""); // Remueve el nombre del archivo para obtener solo la ruta de la carpeta
           document.getElementById("selected-directory").value = selectedFolder; // Muestra la ruta en el campo de texto
         });
 
-      document.getElementById("private_key").addEventListener("change", function () {
+      document
+        .getElementById("private_key")
+        .addEventListener("change", function () {
           // Ajusta y muestra la ruta del archivo seleccionado
           const directoryPath = fullPath
             .replace(/\\/g, "/")
@@ -206,24 +243,29 @@
             "Archivo seleccionado: " + directoryPath;
         });
 
-      
       let conditional = 0;
-      let keysFieldsIfTrue = document.getElementById("keys-directory-container");
-      let keysFieldsIfFalse = document.getElementById("keys-directory-container-true");
+      let keysFieldsIfTrue = document.getElementById(
+        "keys-directory-container"
+      );
+      let keysFieldsIfFalse = document.getElementById(
+        "keys-directory-container-true"
+      );
       let questionContainer = document.getElementById("keys-question");
 
       document.getElementById("yes").addEventListener("click", () => {
         conditional = 1;
         changeVisibleState();
-        document.getElementById("initChat").removeAttribute("class", "not-visible");
+        document
+          .getElementById("initChat")
+          .removeAttribute("class", "not-visible");
         questionContainer.setAttribute("class", "not-visible");
-      })
+      });
 
       document.getElementById("no").addEventListener("click", () => {
         conditional = 2;
         changeVisibleState();
         questionContainer.setAttribute("class", "not-visible");
-      })
+      });
 
       function changeVisibleState() {
         if (conditional == 2) {
@@ -232,7 +274,6 @@
           keysFieldsIfFalse.removeAttribute("class", "not-visible");
         }
       }
-      
     </script>
   </body>
 </html>
