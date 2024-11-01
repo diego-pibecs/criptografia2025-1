@@ -34,14 +34,25 @@ from uuid import uuid4
 import random
 import string
 
+######## APLICACIÓN FLASK ########
+
 #Configuracion de aplicacion Flask y Socket.IO: para comunicacion en tiempo real
 app = Flask(__name__)
 app.secret_key = 'CriptografiaProyecto'
 socketio = SocketIO(app)
 
+######## FIN APLICACIÓN FLASK ########
+
+######## VARIABLES GLOBALES ########
+
 # Estructuras de datos para almacenar información de las salas de chat y sus códigos
 rooms = {} #Salas
 current_room_code = None
+
+######## FIN VARIABLES GLOBALES #####
+
+
+###### FUNCIONES SALA ###### 
 
 #Generar codigo unico para salas de chat
 def generate_room_code(length: int, existing_codes: list[str]) -> str:
@@ -61,9 +72,15 @@ def generate_room_code(length: int, existing_codes: list[str]) -> str:
         if code not in existing_codes:
             return code
 
+
 #Genera un identificador de sesión único usando UUID
 def generate_unique_session_id():
     return str(uuid4())
+
+
+######## FIN FUNCIONES SALA ########
+
+####### FUNCIONES CRIPTOGRAFICAS ########
 
 #FIRMA DIGITAL de mensaje, 
 def sign_message(message, private_key):
@@ -182,6 +199,10 @@ def create_keys(secret, private_key_path, public_key_path):
     print(f"\n---CLAVES CREADAS Y GUARDAS: \n  **PRIVADA: {private_key_path} \n  **PUBLICA: {public_key_path}")
 
 
+######## FIN FUNCIONES CRIPTOGRAFICAS ########
+
+####### FUNCIONES DE RUTAS ########
+
 @app.route("/")
 def index():
     #Renderiza  página inicial de login
@@ -210,6 +231,7 @@ def chat():
 #Gestiona el proceso de autenticación y generación de claves para el usuario, creando claves si no existen.
 def login():
     global current_room_code  # Hacer referencia a la variable global
+    
 
     session.clear()
     username =  request.form.get("username")
@@ -249,23 +271,34 @@ def login():
             
         else: 
             print("***\nERROR: !!!Tienes que seleccionar un nombre para el archivo!!!: \n")
-       
-    # Generación de clave simétrica y configuración de sala de chat
-    password = bytes(secret, 'utf-8')
-    salt = get_random_bytes(16)
-    symmetric_key = pbkdf(password, salt, 32)
 
-            # Lógica para manejar rooms
+        # Lógica para manejar rooms
         # Generar el código de room si no existe
-    # Crea una sala de chat y asocia los datos de sesión
     if current_room_code is None:
         current_room_code = generate_room_code(6, list(rooms.keys()))
-        rooms[current_room_code] = {
-            'members': 0,
-            'messages': [],
-            'creator': username
-        }
+
     room_code = current_room_code
+
+    # Generación de clave simétrica y configuración de sala de chat
+    
+    # Verifica si room_code ya existe en rooms y asigna los valores de salt y password adecuadamente
+    if room_code in rooms:
+        salt = rooms[room_code].get('salt')
+        password = rooms[room_code].get('password')
+    else:
+        salt = get_random_bytes(16)
+        password = bytes(secret, 'utf-8')
+        rooms[room_code] = {
+            'members': 1,
+            'messages': [],
+            'creator': username,
+            'salt': salt,
+            'password': password
+        }
+        
+    # Generación de clave simétrica 
+    symmetric_key = pbkdf(password, salt, 32)
+
     rooms[room_code]['members'] += 1
 
     session['room'] = room_code
@@ -288,6 +321,10 @@ def login():
     print("\n")
     
     return redirect("/chat")
+
+######## FIN FUNCIONES DE RUTAS ########
+
+######## FUNCIONES DE SOCKETIO ########
 
 @socketio.on('connect')
 #Gestiona la conexión de un usuario al chat mediante Socket.IO, asignándolo a una sala
@@ -348,24 +385,33 @@ def handle_message(payload):
         "nonce": nonce_b64,
         "encrypted_symmetric_key": encrypted_symmetric_key_b64,
         "message_hash": message_hash,
-        "signature": base64.b64encode(signature).decode()
+        "signature": base64.b64encode(signature).decode(),
+        "public_key": session['public_key']
     }
 
-    send(message, to=room)
-    rooms[room]["messages"].append(message)
-        #TEST E INFO EN TERMINAL
-    print("\n-/-/-/-/-/-/-/ mensaje enviado /-/-/-/-/-/-/-")
-    print("***EMISOR:  ", message["sender"])
-    print("**MENSAJE:  ", message["message"])
-    print("")
-    print("\n****MENSAJE CIFRADO -RSA:  ", encrypted_symmetric_key_b64)
-    print("****TAG:  ", tag_b64)
-    print("****NONCE (IV):  ", nonce_b64)
-    print("****MENSAJE HASH:  ", message_hash)
-    print("****FIRMA DIGITAL:  ", base64.b64encode(signature).decode())
+    
 
-    is_signature_valid = verify_signature(message_hash, signature, public_key)
-    print("")
+    sender_public_key = RSA.import_key(message["public_key"].encode())
+    is_signature_valid = verify_signature(message_hash, signature, sender_public_key)
+    
+    if is_signature_valid == True:
+        print("***AUTENTICACIÓN EXITOSA, MENSAJE RECIBIDO")
+        send(message, to=room)
+        rooms[room]["messages"].append(message)
+        #TEST E INFO EN TERMINAL
+        print("\n-/-/-/-/-/-/-/ mensaje enviado /-/-/-/-/-/-/-")
+        print("***EMISOR:  ", message["sender"])
+        print("**MENSAJE:  ", message["message"])
+        print("")
+        print("\n****MENSAJE CIFRADO -RSA:  ", encrypted_symmetric_key_b64)
+        print("****TAG:  ", tag_b64)
+        print("****NONCE (IV):  ", nonce_b64)
+        print("****MENSAJE HASH:  ", message_hash)
+        print("****FIRMA DIGITAL:  ", base64.b64encode(signature).decode()) 
+    else: 
+        print("***AUNTENTICACIÓN FALLIDA")
+
+    print("") 
 
 
 @socketio.on('disconnect')
@@ -385,8 +431,11 @@ def handle_disconnect():
             "sender": ""
         })
 
+######## FIN FUNCIONES DE SOCKETIO ########
 
+
+####### FUNCION MAIN ########
 if __name__ == "__main__":
     app.run(debug=True, port=8080)
 
-
+######## FIN FUNCION MAIN ########
